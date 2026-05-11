@@ -80,9 +80,9 @@
     };
   };
 
-  users.users.operator = {
+  users.users.nasrin = {
     isNormalUser = true;
-    description = "operator";
+    description = "nasrin";
     extraGroups = [ "networkmanager" "wheel" "video" "audio" "input" ];
     packages = with pkgs; [
       kdePackages.kate
@@ -90,7 +90,7 @@
     ];
   };
 
-  home-manager.users.operator = { pkgs, ... }: {
+  home-manager.users.nasrin = { pkgs, ... }: {
     imports = [ ./zsh.nix ];
     home.stateVersion = "25.11"; # DO NOT EDIT
   };
