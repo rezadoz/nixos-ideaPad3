@@ -110,11 +110,11 @@
     lidSwitch = "suspend-then-hibernate";
     lidSwitchExternalPower = "suspend";
     lidSwitchDocked = "ignore";
-    extraConfig = ''
-      HandlePowerKey=suspend
-      IdleAction=suspend-then-hibernate
-      IdleActionSec=15min
-    '';
+#     extraConfig = ''  # The option definition `services.logind.extraConfig' is bad. Use services.logind.settings.Login instead.
+#       HandlePowerKey=suspend
+#       IdleAction=suspend-then-hibernate
+#       IdleActionSec=15min
+#     '';
   };
 
   systemd.sleep.extraConfig = ''
@@ -124,7 +124,7 @@
   ############################################################
   # Backlight — brightnessctl works without root via udev rules
   # included by the package. The `video` group on the user is set
-  # in configuration.nix so Plasma's brightness keys Just Work.
+  # in configuration.nix TODO: FIX
   ############################################################
   programs.light.enable = false;  # we use brightnessctl instead
 

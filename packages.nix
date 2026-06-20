@@ -5,6 +5,7 @@
     # applications
     btop                    # was btop-cuda; no NVIDIA on this laptop
     catnip
+    chromium                # google chrome web browser
     feh
     fish
     ffmpeg

@@ -55,7 +55,11 @@
     variant = "";
   };
 
-  services.printing.enable = true;
+  services.printing = {
+  enable = true;
+  drivers = [ pkgs.brlaser pkgs.brgenml1lpr pkgs.brgenml1cupswrapper ];
+  # ^ only needed as a fallback; try driverless first and you can drop these later
+  };
 
   # sound
   services.pulseaudio.enable = false;
@@ -96,6 +100,7 @@
   };
 
   programs.firefox.enable = true;
+  programs.chromium.enable = true;
 
   programs.neovim = {
     enable = true;
@@ -103,7 +108,7 @@
     vimAlias = false;
   };
 
-  programs.steam.enable = true;
+  #programs.steam.enable = true;
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
