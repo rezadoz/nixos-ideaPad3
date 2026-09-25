@@ -6,6 +6,25 @@ NixOS flake configuration for my mom's Lenovo IdeaPad laptop (flake host: `ideap
 
 This repo is the `/etc/nixos` configuration for the machine, managed as a Nix flake. It's built and switched with `nixos-rebuild --flake`, and the repo itself lives at `/etc/nixos` on the machine, owned by root.
 
+
+## Changelog
+
+### 2026-09-25
+
+Moved off the EOL `nixos-25.11` branch and cleared the build warnings it had accumulated.
+
+- Bumped `nixpkgs` and `home-manager` inputs to `26.05` (`system.stateVersion` left at `25.11` — unrelated)
+- Migrated `services.logind` lid-switch options to `services.logind.settings.Login.*`
+- Migrated `systemd.sleep.extraConfig` to `systemd.sleep.settings.Sleep`
+- Wired up `zsh.nix`: set nasrin's login shell to zsh (was previously unused) and fixed p10k instant-prompt ordering
+- Corrected several shell aliases copied from another host's config (`rebuild`, `catnips`, `zshrc`, `nsu`)
+- Removed `unstable.kdePackages.konsole` (mixed-Qt risk), `blueman` (redundant with Plasma's Bluedevil), `vpl-gpu-rt` (no Ice Lake support)
+- Fixed TLP battery thresholds for IdeaPad hardware (conservation mode, not ThinkPad start/stop thresholds)
+- Renamed `libreoffice-qt6` → `libreoffice-qt`
+- Added `services.avahi` (driverless printer discovery), `boot.loader.systemd-boot.configurationLimit`, weekly `nix.gc`, and a `.gitignore`
+- Documented an untested hibernation risk (resume-from-swapfile) and added a commented `boot.resumeDevice`/`resume_offset` fallback
+
+
 ## Structure
 
 ```
