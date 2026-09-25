@@ -33,7 +33,8 @@
       };
     };
   };
-  services.blueman.enable = true;
+  # Plasma ships its own Bluetooth applet (Bluedevil); blueman just
+  # adds a second, competing tray icon/agent.
 
   ############################################################
   # Graphics — Intel Ice Lake (10th gen) iGPU
@@ -47,8 +48,9 @@
     enable32Bit = true;         # 32-bit games / Steam
     extraPackages = with pkgs; [
       intel-media-driver        # iHD VAAPI driver (Gen9+, includes Ice Lake)
-      vpl-gpu-rt                # successor to intel-media-sdk on newer kernels
       libvdpau-va-gl            # VDPAU → VAAPI shim
+      # (vpl-gpu-rt removed: oneVPL GPU runtime only supports Tiger Lake
+      #  and newer, so it does nothing on Ice Lake.)
     ];
   };
 
@@ -78,11 +80,12 @@
       CPU_MIN_PERF_ON_BAT = 0;
       CPU_MAX_PERF_ON_BAT = 60;
 
-      # Lenovo battery care thresholds (works if your firmware
-      # exposes them; harmless if not). Stop charging at 80% to
-      # prolong battery lifespan.
-      START_CHARGE_THRESH_BAT0 = 75;
-      STOP_CHARGE_THRESH_BAT0 = 80;
+      # IdeaPads (non-ThinkPad) don't support arbitrary start/stop
+      # thresholds — only ideapad_laptop "conservation mode", which
+      # caps charge at ~60% (80% on some models). 1 = on, 0 = off.
+      # Turn off before a trip when she needs a full charge:
+      #   sudo tlp setcharge 0 0 BAT0   (or: sudo tlp fullcharge)
+      STOP_CHARGE_THRESH_BAT0 = 1;
     };
   };
 
@@ -101,32 +104,39 @@
   # Lid / suspend behaviour
   #
   # Suspend-then-hibernate: suspend immediately, then move to
-  # hibernate after a delay. Saves battery if the laptop sits
-  # closed for a long time. Requires a swap area large enough
-  # to fit RAM — if your laptop has more RAM than the 8 GB swap
-  # above, bump the swap size.
+  # hibernate after a delay. Requires swap >= RAM (check `free -h`).
+  #
+  # NOTE: while someone is logged into Plasma, PowerDevil takes the
+  # lid-switch inhibitor and its own settings win (System Settings →
+  # Power Management). These logind settings apply at the SDDM
+  # login screen / with no session.
+  #
+  # TEST ONCE before trusting it with her work: save everything,
+  # run `systemctl hibernate`, power back on, confirm the session
+  # comes back. If it cold-boots instead, set the resume device
+  # explicitly (see commented block below).
   ############################################################
-  services.logind = {
-    lidSwitch = "suspend-then-hibernate";
-    lidSwitchExternalPower = "suspend";
-    lidSwitchDocked = "ignore";
-#     extraConfig = ''  # The option definition `services.logind.extraConfig' is bad. Use services.logind.settings.Login instead.
-#       HandlePowerKey=suspend
-#       IdleAction=suspend-then-hibernate
-#       IdleActionSec=15min
-#     '';
+  services.logind.settings.Login = {
+    HandleLidSwitch = "suspend-then-hibernate";
+    HandleLidSwitchExternalPower = "suspend";
+    HandleLidSwitchDocked = "ignore";
+    # HandlePowerKey = "suspend";
   };
 
-  systemd.sleep.extraConfig = ''
-    HibernateDelaySec=30min
-  '';
+  systemd.sleep.settings.Sleep = {
+    HibernateDelaySec = "30min";
+  };
+
+  # Only needed if the hibernate test above fails. Get the offset with:
+  #   sudo btrfs inspect-internal map-swapfile -r /swapfile
+  # boot.resumeDevice = "/dev/disk/by-uuid/e09ba8fa-2f50-4754-a46f-144d7c7b0693";
+  # boot.kernelParams = [ "resume_offset=XXXXXX" ];
 
   ############################################################
-  # Backlight — brightnessctl works without root via udev rules
-  # included by the package. The `video` group on the user is set
-  # in configuration.nix TODO: FIX
+  # Backlight — Plasma handles the brightness keys itself.
+  # brightnessctl (packages.nix) works unprivileged via logind's
+  # SetBrightness D-Bus call, so no udev rules / light needed.
   ############################################################
-  programs.light.enable = false;  # we use brightnessctl instead
 
   ############################################################
   # Firmware (recommended for laptops; lets `fwupdmgr` pull
@@ -153,10 +163,7 @@
       noto-fonts
       noto-fonts-color-emoji
     ];
-    fontconfig = {
-      enable = true;
-      useEmbeddedBitmaps = true;
-    };
+    # fontconfig.useEmbeddedBitmaps defaults to true as of 26.05
   };
 
   ############################################################

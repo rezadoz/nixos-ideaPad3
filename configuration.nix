@@ -13,6 +13,9 @@
     ];
 
   boot.loader.systemd-boot.enable = true;
+  # Keep the ESP from filling up — linuxPackages_latest adds a new
+  # kernel+initrd (~70-100 MB) per generation.
+  boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Latest kernel — gets you newer Intel iGPU and Wi-Fi support.
@@ -56,9 +59,16 @@
   };
 
   services.printing = {
-  enable = true;
-  drivers = [ pkgs.brlaser pkgs.brgenml1lpr pkgs.brgenml1cupswrapper ];
-  # ^ only needed as a fallback; try driverless first and you can drop these later
+    enable = true;
+    drivers = [ pkgs.brlaser pkgs.brgenml1lpr pkgs.brgenml1cupswrapper ];
+    # ^ only needed as a fallback; try driverless first and you can drop these later
+  };
+
+  # Driverless/IPP-Everywhere printing needs mDNS to discover network printers.
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
   };
 
   # sound
@@ -88,6 +98,7 @@
     isNormalUser = true;
     description = "nasrin";
     extraGroups = [ "networkmanager" "wheel" "video" "audio" "input" ];
+    shell = pkgs.zsh;   # zsh.nix is only used if this is her login shell
     packages = with pkgs; [
       kdePackages.kate
       # thunderbird
@@ -98,6 +109,11 @@
     imports = [ ./zsh.nix ];
     home.stateVersion = "25.11"; # DO NOT EDIT
   };
+
+  # System-level zsh: required for it to be a valid login shell.
+  # Home-manager (zsh.nix) owns the actual config.
+  programs.zsh.enable = true;
+  environment.pathsToLink = [ "/share/zsh" ];   # completions for HM-managed zsh
 
   programs.firefox.enable = true;
   programs.chromium.enable = true;
@@ -111,7 +127,17 @@
 
   #programs.steam.enable = true;
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    auto-optimise-store = true;
+  };
+
+  # Keep the store from slowly eating the disk.
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
+  };
   nixpkgs.config.allowUnfree = true;
 
   # List packages installed in system profile. To search, run:

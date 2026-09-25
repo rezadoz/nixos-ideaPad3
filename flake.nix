@@ -2,15 +2,17 @@
   description = "ideapad NixOS configuration";
 
   inputs = {
-    # Stable channel — matches your system.stateVersion of 25.11
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    # Stable channel. NOTE: this is independent of system.stateVersion —
+    # bump this every release; never bump stateVersion. (25.11 went EOL
+    # 2026-06-30 and its branch no longer receives updates.)
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
 
     # Unstable channel — exposed to the system via an overlay as `pkgs.unstable.*`
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # home-manager release that tracks 25.11
+    # home-manager release — must match the nixpkgs release above
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -24,16 +26,16 @@
       specialArgs = { inherit inputs; };
       modules = [
         # Overlay that adds `pkgs.unstable` everywhere in the system
-        ({ config, ... }: {
+        {
           nixpkgs.overlays = [
             (final: prev: {
               unstable = import nixpkgs-unstable {
-                inherit system;
+                system = final.stdenv.hostPlatform.system;
                 config.allowUnfree = true;
               };
             })
           ];
-        })
+        }
         ./configuration.nix
         home-manager.nixosModules.home-manager
         {

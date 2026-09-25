@@ -5,13 +5,13 @@
     # applications
     btop                    # was btop-cuda; no NVIDIA on this laptop
     catnip
-    chromium                # google chrome web browser
+    chromium                # programs.chromium only sets policies; this installs it
     feh
     fish
     ffmpeg
     geeqie
     gimp gimpPlugins.gmic
-    libreoffice-qt6
+    libreoffice-qt          # libreoffice-qt6 is now a deprecated alias
     mpv
     qbittorrent
     qemu_full
@@ -24,7 +24,6 @@
     winetricks
     yazi
     zathura
-    zsh zsh-powerlevel10k
 
     # utilities
     _7zz-rar unrar
@@ -46,7 +45,6 @@
     yt-dlp
     wavemon
     zip
-    unstable.kdePackages.konsole
 
     # laptop-specific tooling
     brightnessctl           # backlight control + udev rules

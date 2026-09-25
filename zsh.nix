@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   programs.zsh = {
@@ -27,7 +27,8 @@
     ];
 
     shellAliases = {
-      catnips    = "catnip -d alsa_output.pci-0000_0c_00.6.analog-stereo";
+      # catnips  = "catnip -d <sink>";   # device name was from uss-enterprise;
+      #                                   # find this laptop's with `pactl list short sinks`
       siren      = "mpv --loop ~/media/warsiren.mp3";
 
       # --- Nix ---
@@ -37,11 +38,11 @@
       cfg    = "$EDITOR /etc/nixos/";
       ns     = "nix search nixpkgs";
       nsp    = "nix-shell -p";
-      nsu    = "nix search nixpkgs-unstable";
+      nsu    = "nix search github:NixOS/nixpkgs/nixos-unstable";
       ngc    = "sudo nix-collect-garbage -d";
       nlo    = "nix profile list";
-      rebuild    = "sudo nixos-rebuild switch --flake ~/nix-config#enterprise";
-      update = "sh /etc/nixos/update.sh";
+      rebuild = "sudo nixos-rebuild switch --flake /etc/nixos#ideapad";
+      update  = "bash /etc/nixos/update.sh";
 
       # --- Git ---
       #g      = "git";
@@ -91,18 +92,23 @@
       #v      = "nvim";
       y      = "yazi";
       yz     = "yazi";
-      zshrc  = "$EDITOR ~/.config/zsh/.zshrc";
+      zshrc  = "sudoedit /etc/nixos/zsh.nix";   # ~/.zshrc is a read-only HM symlink
       vimrc  = "$EDITOR ~/.config/nvim/init.lua";
     };
 
-    initContent = ''
-      # Powerlevel10k instant prompt
-      if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
-        source "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"
-      fi
+    initContent = lib.mkMerge [
+      # Powerlevel10k instant prompt — must run before oh-my-zsh and
+      # compinit, or p10k warns about console output during init.
+      (lib.mkOrder 500 ''
+        if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
+          source "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"
+        fi
+      '')
 
       # Source p10k config if it exists (run `p10k configure` to generate it)
-      [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
-    '';
+      ''
+        [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+      ''
+    ];
   };
 }
