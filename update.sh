@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# NixOS update script for Nasrin's ideapad
+# now with automated git commit and push
+# bryan wrote this don't touch it
 
 ansi_yellow='\033[1;33m'
 ansi_cyan='\033[1;36m'
