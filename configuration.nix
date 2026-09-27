@@ -107,8 +107,27 @@
 
   home-manager.users.nasrin = { pkgs, ... }: {
     imports = [ ./zsh.nix ];
+
+    # The guide itself — read-only symlink from the repo, so it always matches git
+    home.file."!README.md".source = ./README.md;
+
+    # Desktop icon that opens it in Okular
+    home.file."Desktop/Laptop Guide.desktop" = {
+      executable = true;  # Plasma won't launch untrusted .desktop files without +x
+      text = ''
+        [Desktop Entry]
+        Type=Application
+        Name=Laptop Guide
+        Comment=How to use this laptop
+        Icon=help-about
+        Exec=okular "/home/nasrin/!README.md"
+        Terminal=false
+      '';
+    };
     home.stateVersion = "25.11"; # DO NOT EDIT
   };
+
+  home-manager.backupFileExtension = "hm-backup";
 
   # System-level zsh: required for it to be a valid login shell.
   # Home-manager (zsh.nix) owns the actual config.
