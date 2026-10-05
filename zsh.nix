@@ -40,7 +40,7 @@ in
       # catnips  = "catnip -d <sink>";   # device name was from uss-enterprise;
       #                                   # find this laptop's with `pactl list short sinks`
       siren      = "mpv --loop ~/media/warsiren.mp3";
-
+      fastfetch  = "fastfetch --logo ~/media/ascii/rose.txt";
       # --- Nix ---
       #nrs    = "sudo nixos-rebuild switch --upgrade --flake /etc/nixos#enterprise";
       #nrt    = "sudo nixos-rebuild test --flake /etc/nixos#enterprise";
