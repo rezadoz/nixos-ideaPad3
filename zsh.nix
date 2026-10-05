@@ -1,6 +1,16 @@
 { config, pkgs, lib, ... }:
 
+let
+  # LAN host finder — see lanfind.sh. Exported to zsh via lanssh.zsh.
+  lanfind = pkgs.writeShellApplication {
+    name = "lanfind";
+    runtimeInputs = with pkgs; [ avahi nmap iproute2 gawk coreutils ];
+    text = builtins.readFile ./lanfind.sh;
+  };
+in
 {
+  home.packages = [ lanfind ];
+
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -43,6 +53,11 @@
       nlo    = "nix profile list";
       rebuild = "sudo nixos-rebuild switch --flake /etc/nixos#ideapad";
       update  = "bash /etc/nixos/update.sh";
+
+      # --- LAN ---
+      # Finds uss-enterprise, exports $USS_ENTERPRISE_IP, connects.
+      # `lanscan` to refresh by hand.
+      ssh-enterprise = "_lan_ensure uss-enterprise && ssh -o HostKeyAlias=uss-enterprise operator@$USS_ENTERPRISE_IP";
 
       # --- Git ---
       #g      = "git";
@@ -108,6 +123,9 @@
       # Source p10k config if it exists (run `p10k configure` to generate it)
       ''
         [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+
+        # lanscan / _lan_ensure — used by the ssh-enterprise alias
+        source ${./lanssh.zsh}
       ''
     ];
   };

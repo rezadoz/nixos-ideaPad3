@@ -69,6 +69,12 @@
     enable = true;
     nssmdns4 = true;
     openFirewall = true;
+    # Announce this laptop as ideapad.local so `lanfind` (zsh.nix)
+    # and `ssh ideapad.local` can find it.
+    publish = {
+      enable = true;
+      addresses = true;
+    };
   };
 
   # sound
