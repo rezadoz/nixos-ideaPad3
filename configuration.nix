@@ -17,6 +17,11 @@
   # kernel+initrd (~70-100 MB) per generation.
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
+  # next 2 LOC for building for raspi
+  boot.binfmt = {
+    emulatedSystems = [ "aarch64-linux" ];
+    preferStaticEmulators = true;
+  };
 
   # Latest kernel — gets you newer Intel iGPU and Wi-Fi support.
   # If you want long-term stability instead, swap to
