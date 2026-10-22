@@ -28,6 +28,7 @@
     # utilities
     _7zz-rar unrar
     bat
+    cryptsetup
     fastfetch
     file
     hunspellDicts.en-us-large
@@ -35,8 +36,10 @@
     lsd
     ripgrep
     rsclock
+    mkp224o
     nix-output-monitor
     nmap
+    parted
     pv
     qdirstat
     tree
